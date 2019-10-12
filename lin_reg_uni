@@ -1,0 +1,64 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+column_names=['POPULATION','PROFIT']
+df= pd.read_csv('ex1data1.txt', sep=",", names=column_names)
+df.shape
+print(df)
+y = np.array(df['PROFIT'])
+y = np.reshape(y,(y.shape[0],1))
+y.shape
+del df['PROFIT']
+df = (df-df.mean())/(df.max()-df.min())
+x = np.array(df)
+print(x)
+x.shape
+def predict(x, weights):
+  predictions = np.dot(x, weights)
+  return predictions
+
+bias = np.ones(shape=(len(x),1))
+xs = np.append(bias, x, axis=1)
+print(xs)
+xs.shape
+W0 = 0.5
+W1 = 0.5
+weights = np.array([
+    [W0],               
+    [W1]])
+
+def cost_function(x, y, weights):
+    N = len(x)
+    predictions = predict(x, weights)
+    sqerror = (predictions - y)**2
+    return 1.0/(2*N) * sqerror.sum()
+
+def update_weights(x, y, weights, lr):
+    
+    N = len(x)
+    predictions = predict(x, weights)
+    error = y - predictions
+    gradient = np.dot(-x.T,  error)
+    gradient /= N
+    gradient *= lr
+    weights -= gradient
+    return weights 
+
+lr = 0.01
+iters = 100000
+costhistory = []
+itera = []
+def train(x, y, weights, lr, iters):
+    
+    for i in range(iters):
+        weights = update_weights(x, y, weights, lr)
+        cost = cost_function(x, y, weights)
+        costhistory.append(cost)
+        itera.append(i)
+        if i % 10 == 0:
+            print("iter={:d}   cost={:.2}".format(i, cost))
+
+train(xs, y, weights, lr, iters)
+ypredicted=predict(xs,weights)
+plt.plot(itera, costhistory)
+plt.scatter(x,y,color='green',marker='^')
