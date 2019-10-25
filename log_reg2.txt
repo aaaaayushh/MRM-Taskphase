@@ -1,0 +1,177 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+column_names=['MARK1','MARK2','ADMISSION']
+df=pd.read_csv('ex2data2.txt', sep=",",names=column_names)
+print(df)
+df.shape
+y = np.array(df['ADMISSION'])
+y = np.reshape(y,(y.shape[0],1))
+#print(y)
+y.shape
+del df['ADMISSION']
+x=np.ones((118,1))
+for i in range(7):
+    for j in range(7-i):
+        if i==0 and j==0:
+            continue
+        else:
+            new1=np.array([df['MARK1']**i]).reshape(118,1)
+            new2=np.array([df['MARK2']**j]).reshape(118,1)
+            new=new1*new2
+            x=np.append(x,new,axis=1)
+x.shape
+
+x = (x-x.mean())/(x.std())
+W0 = 0.5
+W1 = 0.5
+W2 = 0.5
+W3 = 0.5
+W4 = 0.5
+W5 = 0.5
+W6 = 0.5
+W7 = 0.5
+W8 = 0.5
+W9 = 0.5
+W10 = 0.5
+W11= 0.5
+W12= 0.5
+W13= 0.5
+W14= 0.5
+W15= 0.5
+W16 = 0.5
+W17= 0.5
+W18 = 0.5
+W19= 0.5
+W20 = 0.5
+W21 = 0.5
+W22 = 0.5
+W23= 0.5
+W24= 0.5
+W25= 0.5
+W26 = 0.5
+W27= 0.5
+weights = np.array([
+    [W0],               
+    [W1],
+    [W2],
+    [W3],
+    [W4],
+    [W5],
+    [W6],
+    [W7],
+    [W8],
+    [W9],
+    [W10],
+    [W11],
+    [W12],
+    [W13],
+    [W14],
+    [W15],
+    [W16],
+    [W17],
+    [W18],
+    [W19],
+    [W20],
+    [W21],
+    [W22],
+    [W23],
+    [W24],
+    [W25],
+    [W26],
+    [W27]
+    ])
+
+lr = 0.01
+iters = 1000
+costhistory = []
+itera = []
+lamb=10
+
+def predict(x, weights):
+  predictions = np.dot(x, weights)
+  return 1/(1+np.exp(-predictions))
+
+def cost_function(x, y, weights):
+    obser= len(y)
+    predictions= predict(x,weights)
+    class1_cost= -y*np.log(predictions)
+    class2_cost= (1-y)*np.log(1-predictions)
+    reg=weights**2
+    reg=reg.sum()
+    cost= class1_cost-class2_cost+lamb*reg/obser
+    cost=cost.sum()/obser
+    return cost
+
+def update_weights(x,y,weights,lr):
+    n=len(x)
+    predictions=predict(x,weights)
+    gradient=np.dot(x.T, predictions-y)
+    gradient/=n
+    gradient*=lr
+    weights-=gradient+(lamb*weights/118)
+    return weights
+
+
+def update_weights0(x,y,weights,lr):
+    n=len(x)
+    predictions=predict(x,weights)
+    gradient=np.dot(x.T, predictions-y)
+    gradient/=n
+    gradient*=lr
+    weights-=gradient
+    return weights
+
+
+def decision_boundary(prob):
+    
+    if prob[i] >= 0.5:
+            h=1
+    else :h=0
+    return h
+
+
+def train(x,y,weights,lr,iters):
+    cost_history= []
+    for i in range(iters):
+        if i==0:
+            weights=update_weights0(x,y,weights,lr)
+        else:
+            weights=update_weights(x,y,weights,lr)
+        cost=cost_function(x,y,weights)
+        costhistory.append(cost)
+        itera.append(i)
+        if i%100==0:
+             print("iter={:d}   cost={:.5}".format(i, cost))
+    
+    return weights,cost_history
+
+
+f_wts, f_cost= train(x, y, weights, lr, iters)
+ypredicted=predict(x,weights)
+print(f_wts)
+print(f_cost)
+
+
+plt.plot(itera,costhistory)
+
+yp=[]
+print(ypredicted)
+for i in range(len(ypredicted)):
+    v = decision_boundary(ypredicted)
+    yp.append(v)
+print(yp)
+
+yp1=[]
+yp1=np.asarray(yp)
+diff=[]
+diff=yp1-y.T
+
+count=0
+for i in range(len(x)):
+    if diff.T[i] == 0:
+        count+=1
+print(count)
+
+accuracy=count/len(x)*100
+print(accuracy)
