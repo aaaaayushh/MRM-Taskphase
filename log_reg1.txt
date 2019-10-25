@@ -1,0 +1,95 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+column_names=['MARK1','MARK2','ADMISSION']
+df=pd.read_csv('ex2data1.txt', sep=",",names=column_names)
+print(df)
+df.shape
+y = np.array(df['ADMISSION'])
+y = np.reshape(y,(y.shape[0],1))
+#print(y)
+y.shape
+del df['ADMISSION']
+def predict(x, weights):
+  predictions = np.dot(x, weights)
+  return 1/(1+np.exp(-predictions))
+df = (df-df.mean())/(df.std())
+#print(df)
+x = np.array(df)
+bias = np.ones(shape=(len(x),1))
+x = np.append(bias, x, axis=1)
+print(x)
+x.shape
+W0 = 0.4
+W1 = 0.4
+W2 = 0.4
+weights = np.array([
+    [W0],               
+    [W1],
+    [W2]])
+weights.shape
+lr = 0.1
+iters = 50000
+costhistory = []
+itera = []
+def cost_function(x, y, weights):
+    obser= len(y)
+    predictions= predict(x,weights)
+    class1_cost= -y*np.log(predictions)
+    class2_cost= (1-y)*np.log(1-predictions)
+    cost= class1_cost-class2_cost
+    cost=cost.sum()/obser
+    return cost
+def update_weights(x,y,weights,lr):
+    n=len(x)
+    predictions=predict(x,weights)
+    gradient=np.dot(x.T, predictions-y)
+    gradient/=n
+    gradient*=lr
+    weights-=gradient
+    return weights
+
+def decision_boundary(prob):
+    
+    if prob[i] >= 0.5:
+            h=1
+    else :h=0
+    return h
+
+def train(x,y,weights,lr,iters):
+    cost_history= []
+    for i in range(iters):
+        weights=update_weights(x,y,weights,lr)
+        cost=cost_function(x,y,weights)
+        costhistory.append(cost)
+        itera.append(i)
+        if i%1000==0:
+             print("iter={:d}   cost={:.5}".format(i, cost))
+    
+    return weights,cost_history
+
+f_wts, f_cost= train(x, y, weights, lr, iters)
+ypredicted=predict(x,weights)
+print(f_wts)
+print(f_cost)
+plt.plot(itera,costhistory)
+        
+yp=[]
+print(ypredicted)
+for i in range(len(ypredicted)):
+    v = decision_boundary(ypredicted)
+    yp.append(v)
+print(yp)
+
+yp1=[]
+yp1=np.asarray(yp)
+diff=[]
+diff=yp1-y.T
+
+count=0
+for i in range(len(x)):
+    if diff.T[i] == 0:
+        count+=1
+print(count)
+
+
